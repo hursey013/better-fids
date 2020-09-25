@@ -7,9 +7,14 @@
     "@testing-library/react": "^9.5.0",
     "@testing-library/user-event": "^7.2.1",
     "axios": "^0.20.0",
+    "leaflet": "^1.7.1",
     "react": "^16.13.1",
     "react-dom": "^16.13.1",
-    "react-scripts": "3.4.3"
+    "react-leaflet": "^2.7.0",
+    "react-leaflet-control": "^2.1.2",
+    "react-scripts": "3.4.3",
+    "styled-components": "^5.2.0",
+    "twin.macro": "^1.10.0"
   },
   "scripts": {
     "start": "react-scripts start",
@@ -31,5 +36,15 @@
       "last 1 firefox version",
       "last 1 safari version"
     ]
+  },
+  "babelMacros": {
+    "twin": {
+      "config": "tailwind.config.js",
+      "preset": "styled-components",
+      "autoCssProp": true,
+      "debugProp": true,
+      "debugPlugins": false,
+      "debug": false
+    }
   }
 }

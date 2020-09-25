@@ -1,8 +1,8 @@
 {
   /* Visit https://firebase.google.com/docs/database/security to learn more about security rules. */
   "rules": {
-    "location": {
-      ".indexOn": ["address"]
+    "locations": {
+      ".indexOn": ["original_address"]
     },
     ".read": false,
     ".write": false

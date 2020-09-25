@@ -5,7 +5,7 @@ admin.initializeApp();
 
 // Init Realtime Database
 const db = admin.database();
-const ref = db.ref("location");
+const ref = db.ref("locations");
 
 // Init Express
 const express = require("express");
@@ -19,8 +19,8 @@ const axios = require("axios").default;
 const { Client } = require("@googlemaps/google-maps-services-js");
 const client = new Client({});
 
-const getLatLong = async address => {
-  // Send address to Gelocation API, get lat/lng back
+const getGeocoding = async address => {
+  // Send address to Gelocation API
   const response = await client.geocode({
     params: {
       address: `${address} Charlottesville, VA`,
@@ -29,16 +29,15 @@ const getLatLong = async address => {
     }
   });
 
-  return {
-    lat: response.data.results[0].geometry.location.lat,
-    lng: response.data.results[0].geometry.location.lng
-  };
+  functions.logger.info(JSON.stringify(response.data.results[0], null, 2));
+
+  return response.data.results[0];
 };
 
-const saveLatLngToDb = async incident => {
+const saveLocation = async incident => {
   const { Location: address } = incident;
 
-  // Check if the address is already a lat/lng
+  // Check if address is a lat/lng
   if (address.includes("~")) {
     const coords = address.split("~");
     const [lat, lng] = coords;
@@ -46,28 +45,28 @@ const saveLatLngToDb = async incident => {
     return { lat, lng, ...incident };
   }
 
-  // See if address coordinates exist in DB
   const snapshot = await ref
-    .orderByChild("address")
+    .orderByChild("original_address")
     .equalTo(address)
     .once("value");
 
-  if (snapshot.exists()) {
-    const { lat, lng } = Object.values(snapshot.val())[0];
+  let data;
 
-    return {
-      lat,
-      lng,
-      ...incident
-    };
+  // See if original address already exists in DB
+  if (snapshot.exists()) {
+    data = Object.values(snapshot.val())[0];
+  } else {
+    data = await getGeocoding(address);
+
+    // Save geocoding data to DB for future use
+    ref.push({ ...data, original_address: address });
   }
 
-  const latLng = await getLatLong(address);
-
-  // Save lat/lng to DB for future use
-  ref.push({ ...latLng, address });
-
-  return { ...latLng, ...incident };
+  return {
+    lat: data.geometry.location.lat,
+    lng: data.geometry.location.lng,
+    ...incident
+  };
 };
 
 router.get("/incidents", async (req, res) => {
@@ -78,9 +77,10 @@ router.get("/incidents", async (req, res) => {
         clean: true
       }
     });
-    const data = await Promise.all(response.data.map(saveLatLngToDb));
+    const data = await Promise.all(response.data.map(saveLocation));
 
     res.set("Cache-Control", "public, max-age=300, s-maxage=600");
+
     return res.status(200).send(data);
   } catch (err) {
     functions.logger.error(err);
