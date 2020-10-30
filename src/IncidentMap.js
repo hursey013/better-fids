@@ -1,6 +1,18 @@
 import React from "react";
 import { Map, TileLayer, Marker, Popup, ZoomControl } from "react-leaflet";
 import Control from "react-leaflet-control";
+import "leaflet/dist/leaflet.css";
+import L from "leaflet";
+
+import "./IncidentMap.css";
+
+delete L.Icon.Default.prototype._getIconUrl;
+
+L.Icon.Default.mergeOptions({
+  iconRetinaUrl: require("leaflet/dist/images/marker-icon-2x.png"),
+  iconUrl: require("leaflet/dist/images/marker-icon.png"),
+  shadowUrl: require("leaflet/dist/images/marker-shadow.png")
+});
 
 function IncidentMap(props) {
   return (
@@ -11,25 +23,27 @@ function IncidentMap(props) {
       />
       <ZoomControl position="bottomright" />
       <Control position="topright"></Control>
-      {props.incidents.map(incident => (
-        <Marker key={incident.Incident} position={[incident.lat, incident.lng]}>
-          <Popup>
-            <div>
-              <h2>{incident.CallType}</h2>
-              <p>
-                {incident.Location}
-                <br />
-                {incident.Date} @ {incident.CallReceived}
-              </p>
-              <p>
-                <strong>Incident #</strong>
-                <br />
-                {incident.Incident}
-              </p>
-            </div>
-          </Popup>
-        </Marker>
-      ))}
+      {props.incidents.map(
+        ({ 0: date, 1: id, 3: location, 4: type, 5: time, lat, lng }) => (
+          <Marker key={id} position={[lat, lng]}>
+            <Popup>
+              <div>
+                <h2>{type}</h2>
+                <p>
+                  {location}
+                  <br />
+                  {date} @ {time}
+                </p>
+                <p>
+                  <strong>Incident #</strong>
+                  <br />
+                  {id}
+                </p>
+              </div>
+            </Popup>
+          </Marker>
+        )
+      )}
     </Map>
   );
 }

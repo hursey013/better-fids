@@ -9,24 +9,25 @@ const ref = db.ref("locations");
 
 // Init Express
 const express = require("express");
+const cors = require("cors")({ origin: true });
 const app = express();
-const router = express.Router();
 
-// Init Axios
-const axios = require("axios").default;
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(cors);
 
 // Init Google Maps API
 const { Client } = require("@googlemaps/google-maps-services-js");
 const client = new Client({});
 
-const getGeocoding = async address => {
+const getGeocoding = async (address) => {
   // Send address to Gelocation API
   const response = await client.geocode({
     params: {
       address: `${address} Charlottesville, VA`,
       components: "country:US",
-      key: functions.config().google.key
-    }
+      key: functions.config().google.key,
+    },
   });
 
   functions.logger.info(JSON.stringify(response.data.results[0], null, 2));
@@ -34,8 +35,8 @@ const getGeocoding = async address => {
   return response.data.results[0];
 };
 
-const saveLocation = async incident => {
-  const { Location: address } = incident;
+const saveLocation = async (incident) => {
+  const { 3: address } = incident;
 
   // Check if address is a lat/lng
   if (address.includes("~")) {
@@ -65,22 +66,15 @@ const saveLocation = async incident => {
   return {
     lat: data.geometry.location.lat,
     lng: data.geometry.location.lng,
-    ...incident
+    ...incident,
   };
 };
 
-router.get("/incidents", async (req, res) => {
+app.post("/api", async (req, res) => {
   try {
-    const response = await axios.get(functions.config().apify.endpoint, {
-      params: {
-        token: functions.config().apify.token,
-        clean: true
-      }
-    });
-    const data = await Promise.all(response.data.map(saveLocation));
+    const data = await Promise.all(req.body.incidents.map(saveLocation));
 
-    res.set("Cache-Control", "public, max-age=300, s-maxage=600");
-
+    res.set("Cache-Control", "public, max-age=60, s-maxage=180");
     return res.status(200).send(data);
   } catch (err) {
     functions.logger.error(err);
@@ -89,6 +83,4 @@ router.get("/incidents", async (req, res) => {
   }
 });
 
-app.use("/api", router);
-
-exports.api = functions.https.onRequest(app);
+exports.app = functions.https.onRequest(app);

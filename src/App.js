@@ -1,10 +1,10 @@
 import React, { useState, useEffect } from "react";
+import "twin.macro";
 import axios from "axios";
-import { GlobalStyles } from "twin.macro";
+import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
+import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 import IncidentMap from "./IncidentMap";
-
-import "./App.css";
 
 function App() {
   const [data, setData] = useState([]);
@@ -16,13 +16,43 @@ function App() {
       setIsError(false);
       setIsLoading(true);
 
-      // try {
-      //   const result = await axios("/api/incidents");
-      //
-      //   setData(result.data);
-      // } catch (error) {
-      //   setIsError(true);
-      // }
+      const rows = document.querySelectorAll(
+        "body > center > table:nth-child(4) table tr"
+      );
+
+      const data = Array.from(rows)
+        .slice(1, -2)
+        .filter(
+          (v, i, a) =>
+            a.findIndex(
+              t =>
+                t.children[1].textContent === v.children[1].textContent &&
+                t.children[3].textContent === v.children[3].textContent &&
+                t.children[4].textContent === v.children[4].textContent
+            ) === i
+        )
+        .map(row => {
+          const cells = row.querySelectorAll("td");
+          return Array.from(cells).reduce(
+            (accumulator, currentValue, index) => {
+              return {
+                ...accumulator,
+                [index]: currentValue.textContent.trim()
+              };
+            },
+            {}
+          );
+        });
+
+      try {
+        const result = await axios.post("https://fire-map-33663.web.app/api", {
+          incidents: data
+        });
+
+        setData(result.data);
+      } catch (error) {
+        setIsError(true);
+      }
 
       setIsLoading(false);
     };
@@ -31,15 +61,14 @@ function App() {
   }, []);
 
   return (
-    <>
-      <GlobalStyles />
+    <div tw="relative">
       {isError && (
         <div
-          tw="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center bg-black bg-opacity-75"
+          tw="absolute top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-75"
           style={{ zIndex: 1001 }}
         >
           <div tw="bg-white border py-2 px-5 rounded-lg flex items-center flex-col text-center">
-            <i tw="text-red-600" className="fas fa-times fa-3x"></i>
+            <FontAwesomeIcon tw="text-red-600" icon={faTimes} size="3x" />
             <div tw="text-xs text-gray-700 font-light mt-2 text-center">
               <span tw="block font-bold">Error</span>
               Try again later
@@ -49,33 +78,24 @@ function App() {
       )}
       {isLoading && (
         <div
-          tw="fixed top-0 left-0 z-50 w-screen h-screen flex items-center justify-center bg-black bg-opacity-75"
+          tw="absolute top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-75"
           style={{ zIndex: 1001 }}
         >
           <div tw="bg-white border py-2 px-5 rounded-lg flex items-center flex-col text-center">
-            <i
+            <FontAwesomeIcon
               tw="text-orange-600"
-              className="fas fa-circle-notch fa-spin fa-3x"
-            ></i>
+              icon={faCircleNotch}
+              size="3x"
+              spin
+            />
             <div tw="text-xs text-gray-700 font-light mt-2 text-center">
               Please wait...
             </div>
           </div>
         </div>
       )}
-      <div tw="font-sans flex flex-col min-h-screen w-full">
-        <div tw="bg-orange-600 flex-none">
-          <div tw="px-4">
-            <div tw="flex items-center justify-between py-4">
-              <div tw="w-1/2 md:w-auto text-white text-xl font-bold">
-                cville fire today
-              </div>
-            </div>
-          </div>
-        </div>
-        <IncidentMap incidents={data} />
-      </div>
-    </>
+      <IncidentMap incidents={data} />
+    </div>
   );
 }
 
