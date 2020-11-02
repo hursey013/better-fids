@@ -17,7 +17,7 @@ function App() {
       setIsLoading(true);
 
       const rows = document.querySelectorAll(
-        "body > center > table:nth-child(4) table tr"
+        "body > center > table:nth-child(3) > tbody > tr > td > table > tbody > tr"
       );
 
       const data = Array.from(rows)
@@ -25,19 +25,19 @@ function App() {
         .filter(
           (v, i, a) =>
             a.findIndex(
-              t =>
+              (t) =>
                 t.children[1].textContent === v.children[1].textContent &&
                 t.children[3].textContent === v.children[3].textContent &&
                 t.children[4].textContent === v.children[4].textContent
             ) === i
         )
-        .map(row => {
+        .map((row) => {
           const cells = row.querySelectorAll("td");
           return Array.from(cells).reduce(
             (accumulator, currentValue, index) => {
               return {
                 ...accumulator,
-                [index]: currentValue.textContent.trim()
+                [index]: currentValue.textContent.trim(),
               };
             },
             {}
@@ -46,7 +46,7 @@ function App() {
 
       try {
         const result = await axios.post("https://fire-map-33663.web.app/api", {
-          incidents: data
+          incidents: data,
         });
 
         setData(result.data);
@@ -61,7 +61,7 @@ function App() {
   }, []);
 
   return (
-    <div tw="relative">
+    <td colSpan={4} tw="relative">
       {isError && (
         <div
           tw="absolute top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-75"
@@ -95,7 +95,7 @@ function App() {
         </div>
       )}
       <IncidentMap incidents={data} />
-    </div>
+    </td>
   );
 }
 

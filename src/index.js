@@ -15,8 +15,10 @@ if (process.env.NODE_ENV === "development") {
     document.getElementById("root")
   );
 } else {
-  const ref = document.querySelector("body > center > table:nth-child(2)");
-  const app = document.createElement("div");
+  const ref = document.querySelector(
+    "body > center > table:nth-child(2) tr:nth-child(2)"
+  );
+  const app = document.createElement("tr");
   app.id = "root";
   ref.parentNode.insertBefore(app, ref.nextSibling);
   ReactDOM.render(

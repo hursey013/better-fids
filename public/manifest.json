@@ -7,7 +7,7 @@
   },
   "content_scripts": [
     {
-      "matches": ["http://warhammer.mcc.virginia.edu/fids/fids.php"],
+      "matches": ["http://warhammer.mcc.virginia.edu/fids/fids.php*"],
       "css": ["/static/css/main.css"],
       "js": ["/static/js/main.js"]
     }
