@@ -25,8 +25,13 @@ function App() {
         .filter(
           (v, i, a) =>
             a.findIndex(
+              (t) => t.children[1].textContent === v.children[1].textContent
+            ) === i
+        )
+        .filter(
+          (v, i, a) =>
+            a.findIndex(
               (t) =>
-                t.children[1].textContent === v.children[1].textContent &&
                 t.children[3].textContent === v.children[3].textContent &&
                 t.children[4].textContent === v.children[4].textContent
             ) === i
