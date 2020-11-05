@@ -9,7 +9,7 @@ const ref = db.ref("locations");
 
 // Init Express
 const express = require("express");
-const cors = require("cors")({ origin: true });
+const cors = require("cors")({ origin: "http://warhammer.mcc.virginia.edu" });
 const app = express();
 
 app.use(express.json());
@@ -20,14 +20,14 @@ app.use(cors);
 const { Client } = require("@googlemaps/google-maps-services-js");
 const client = new Client({});
 
-const getGeocoding = async (address) => {
+const getGeocoding = async address => {
   // Send address to Gelocation API
   const response = await client.geocode({
     params: {
       address: `${address} Charlottesville, VA`,
       components: "country:US",
-      key: functions.config().google.key,
-    },
+      key: functions.config().google.key
+    }
   });
 
   functions.logger.info(JSON.stringify(response.data.results[0], null, 2));
@@ -35,7 +35,7 @@ const getGeocoding = async (address) => {
   return response.data.results[0];
 };
 
-const saveLocation = async (incident) => {
+const saveLocation = async incident => {
   const { 3: address } = incident;
 
   // Check if address is a lat/lng
@@ -66,7 +66,7 @@ const saveLocation = async (incident) => {
   return {
     lat: data.geometry.location.lat,
     lng: data.geometry.location.lng,
-    ...incident,
+    ...incident
   };
 };
 
