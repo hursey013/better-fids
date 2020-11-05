@@ -74,7 +74,7 @@ app.post("/api", async (req, res) => {
   try {
     const data = await Promise.all(req.body.incidents.map(saveLocation));
 
-    res.set("Cache-Control", "public, max-age=60, s-maxage=180");
+    res.set("Cache-Control", "public, max-age=30, s-maxage=60");
     return res.status(200).send(data);
   } catch (err) {
     functions.logger.error(err);

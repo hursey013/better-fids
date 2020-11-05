@@ -1,5 +1,5 @@
 {
-  "name": "better-fids",
+  "name": "Better-FIDS",
   "version": "1.0.0",
   "private": true,
   "dependencies": {
@@ -50,8 +50,5 @@
       "debugPlugins": false,
       "debug": false
     }
-  },
-  "devDependencies": {
-    "@fortawesome/fontawesome-free": "^5.15.1"
   }
 }
