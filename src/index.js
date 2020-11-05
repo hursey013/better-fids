@@ -3,10 +3,6 @@ import ReactDOM from "react-dom";
 import App from "./App";
 import * as serviceWorker from "./serviceWorker";
 
-// Prevent page from being reloaded
-window.stop();
-setTimeout(() => window.location.reload(), 3 * 60 * 1000);
-
 if (process.env.NODE_ENV === "development") {
   ReactDOM.render(
     <React.StrictMode>

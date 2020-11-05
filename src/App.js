@@ -21,28 +21,28 @@ function App() {
       );
 
       const data = Array.from(rows)
-        .slice(1, -2)
+        .slice(1, -1)
         .filter(
           (v, i, a) =>
             a.findIndex(
-              (t) => t.children[1].textContent === v.children[1].textContent
+              t => t.children[1].textContent === v.children[1].textContent
             ) === i
         )
         .filter(
           (v, i, a) =>
             a.findIndex(
-              (t) =>
+              t =>
                 t.children[3].textContent === v.children[3].textContent &&
                 t.children[4].textContent === v.children[4].textContent
             ) === i
         )
-        .map((row) => {
+        .map(row => {
           const cells = row.querySelectorAll("td");
           return Array.from(cells).reduce(
             (accumulator, currentValue, index) => {
               return {
                 ...accumulator,
-                [index]: currentValue.textContent.trim(),
+                [index]: currentValue.textContent.trim()
               };
             },
             {}
@@ -51,7 +51,7 @@ function App() {
 
       try {
         const result = await axios.post("https://fire-map-33663.web.app/api", {
-          incidents: data,
+          incidents: data
         });
 
         setData(result.data);

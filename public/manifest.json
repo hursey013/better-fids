@@ -1,13 +1,14 @@
 {
-  "name": "better-fids",
-  "version": "1.0.1",
+  "name": "Better-FIDS",
+  "description": "An improved Fire Incident Display System (FIDS) for Charlottesville, VA",
+  "version": "1.0.2",
   "manifest_version": 2,
   "icons": {
     "128": "favicon.png"
   },
   "content_scripts": [
     {
-      "matches": ["http://warhammer.mcc.virginia.edu/fids/fids.php*"],
+      "matches": ["*://warhammer.mcc.virginia.edu/fids/*"],
       "css": ["/static/css/main.css"],
       "js": ["/static/js/main.js"]
     }
