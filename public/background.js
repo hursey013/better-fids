@@ -1,5 +1,7 @@
-chrome.browserAction.onClicked.addListener(function(activeTab) {
+const manifestData = chrome.runtime.getManifest();
+
+chrome.browserAction.onClicked.addListener(function (activeTab) {
   chrome.tabs.create({
-    url: "http://warhammer.mcc.virginia.edu/fids/fids.php"
+    url: manifestData.content_scripts[0].matches[0],
   });
 });

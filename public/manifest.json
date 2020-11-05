@@ -12,7 +12,7 @@
   "background": { "scripts": ["background.js"], "persistent": false },
   "content_scripts": [
     {
-      "matches": ["*://warhammer.mcc.virginia.edu/fids/*"],
+      "matches": ["http://warhammer.mcc.virginia.edu/fids/fids.php"],
       "css": ["/static/css/main.css"],
       "js": ["/static/js/main.js"]
     }

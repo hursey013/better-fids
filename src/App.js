@@ -5,6 +5,7 @@ import { FontAwesomeIcon } from "@fortawesome/react-fontawesome";
 import { faCircleNotch, faTimes } from "@fortawesome/free-solid-svg-icons";
 
 import IncidentMap from "./IncidentMap";
+import Modal from "./Modal";
 
 function App() {
   const [data, setData] = useState([]);
@@ -25,24 +26,24 @@ function App() {
         .filter(
           (v, i, a) =>
             a.findIndex(
-              t => t.children[1].textContent === v.children[1].textContent
+              (t) => t.children[1].textContent === v.children[1].textContent
             ) === i
         )
         .filter(
           (v, i, a) =>
             a.findIndex(
-              t =>
+              (t) =>
                 t.children[3].textContent === v.children[3].textContent &&
                 t.children[4].textContent === v.children[4].textContent
             ) === i
         )
-        .map(row => {
+        .map((row) => {
           const cells = row.querySelectorAll("td");
           return Array.from(cells).reduce(
             (accumulator, currentValue, index) => {
               return {
                 ...accumulator,
-                [index]: currentValue.textContent.trim()
+                [index]: currentValue.textContent.trim(),
               };
             },
             {}
@@ -50,8 +51,8 @@ function App() {
         });
 
       try {
-        const result = await axios.post("https://fire-map-33663.web.app/api", {
-          incidents: data
+        const result = await axios.post(process.env.REACT_APP_GEOLOCATION_API, {
+          incidents: data,
         });
 
         setData(result.data);
@@ -68,36 +69,26 @@ function App() {
   return (
     <td colSpan={4} tw="relative">
       {isError && (
-        <div
-          tw="absolute top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-75"
-          style={{ zIndex: 1001 }}
-        >
-          <div tw="bg-white border py-2 px-5 rounded-lg flex items-center flex-col text-center">
-            <FontAwesomeIcon tw="text-red-600" icon={faTimes} size="3x" />
-            <div tw="text-xs text-gray-700 font-light mt-2 text-center">
-              <span tw="block font-bold">Error</span>
-              Try again later
-            </div>
+        <Modal>
+          <FontAwesomeIcon tw="text-red-600" icon={faTimes} size="3x" />
+          <div tw="text-xs text-gray-700 font-light mt-2 text-center">
+            <span tw="block font-bold">Error</span>
+            Try again later
           </div>
-        </div>
+        </Modal>
       )}
       {isLoading && (
-        <div
-          tw="absolute top-0 left-0 z-50 w-full h-full flex items-center justify-center bg-black bg-opacity-75"
-          style={{ zIndex: 1001 }}
-        >
-          <div tw="bg-white border py-2 px-5 rounded-lg flex items-center flex-col text-center">
-            <FontAwesomeIcon
-              tw="text-orange-600"
-              icon={faCircleNotch}
-              size="3x"
-              spin
-            />
-            <div tw="text-xs text-gray-700 font-light mt-2 text-center">
-              Please wait...
-            </div>
+        <Modal>
+          <FontAwesomeIcon
+            tw="text-orange-600"
+            icon={faCircleNotch}
+            size="3x"
+            spin
+          />
+          <div tw="text-xs text-gray-700 font-light mt-2 text-center">
+            Please wait...
           </div>
-        </div>
+        </Modal>
       )}
       <IncidentMap incidents={data} />
     </td>
