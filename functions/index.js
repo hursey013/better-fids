@@ -9,6 +9,7 @@ const ref = db.ref("locations");
 
 // Init Express
 const express = require("express");
+const basicAuth = require("express-basic-auth");
 const cors = require("cors")({ origin: "http://warhammer.mcc.virginia.edu" });
 const app = express();
 
@@ -82,5 +83,43 @@ app.post("/api", async (req, res) => {
     return res.status(500);
   }
 });
+
+app.get(
+  "/api/dedupe",
+  basicAuth({
+    users: { admin: functions.config().user.password }
+  }),
+  async (req, res) => {
+    try {
+      const snapshot = await ref.once("value");
+      const locations = snapshot.val();
+      const filtered = Object.keys(locations)
+        .filter(
+          (v, i, a) =>
+            a.findIndex(
+              t =>
+                locations[t].original_address === locations[v].original_address
+            ) === i
+        )
+        .reduce((obj, key) => {
+          obj[key] = locations[key];
+          return obj;
+        }, {});
+
+      ref.set(filtered);
+
+      return res
+        .status(200)
+        .send(
+          `Removed ${Object.keys(locations).length -
+            Object.keys(filtered).length} duplicate records.`
+        );
+    } catch (err) {
+      functions.logger.error(err);
+
+      return res.status(500);
+    }
+  }
+);
 
 exports.app = functions.https.onRequest(app);
